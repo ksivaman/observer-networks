@@ -15,7 +15,7 @@ from art.utils import load_mnist
 from utils import get_features, detect
 from architecture import d1, d2, d3, d4
 
-cmd = '../art/dist/init_module/init_module'
+cmd = 'art/dist/init_module/init_module'
 os.system(cmd)
 
 #Create the neural network architecture, return logits instead of activation in forward method (Eg. softmax).
