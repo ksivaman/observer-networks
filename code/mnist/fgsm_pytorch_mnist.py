@@ -1,5 +1,6 @@
 import time
 import sys
+import os
 import torch
 import torch.nn as nn
 import torch.nn.functional as F
@@ -11,6 +12,11 @@ sys.path.append('./../')
 from art.attacks.fast_gradient import FastGradientMethod
 from art.classifiers.pytorch import PyTorchClassifier
 from art.utils import load_mnist
+from utils import get_features, detect
+from architecture import d1, d2, d3, d4
+
+cmd = '../art/dist/init_module/init_module'
+os.system(cmd)
 
 #Create the neural network architecture, return logits instead of activation in forward method (Eg. softmax).
 class Net(nn.Module):
@@ -72,10 +78,10 @@ predictions = mnist_classifier.predict(x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print('Accuracy after attack: {}%'.format(accuracy * 100))
 
+features_a, features_b, features_c, features_d = get_features(mnist_classifier)
+new_accuracy = detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv)
+
+print('Accuracy after defense on mnist on fgsm is: {}%'.format(new_accuracy * 100))
 mnist_classifier.save('mnist_fgsm_state_dict', 'models')
-# print((mnist_classifier)) 
-# torch.save(model.state_dict(), 'models/mnist_fgsm_state_dict')
-# torch.save(x_test, 'tensors/test_imgs_mnist.pt')
-# torch.save(x_test_adv, 'tensors/test_imgs_mnist_adversarial.pt')
-# torch.save(x_train, 'tensors/train_imgs_mnist.pt')
-# torch.save(x_train_adv, 'tensors/train_imgs_mnist_adversarial.pt')
+
+
