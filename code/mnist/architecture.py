@@ -2,7 +2,7 @@ import torch
 from torch import nn
 from torchvision import models, datasets, transforms
 
-classifier = models.resnet18(pretrained=True)
+classifier = models.resnet18(pretrained=False)
 
 d1 = torch.nn.Sequential(*(list(classifier.children())[5:-2]), nn.Linear(in_features=512, out_features=10, bias=True), nn.Linear(in_features=10, out_features=2, bias=True))
 
