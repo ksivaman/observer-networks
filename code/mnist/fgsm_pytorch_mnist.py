@@ -78,10 +78,11 @@ predictions = mnist_classifier.predict(x_test_adv)
 accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) / len(y_test)
 print('Accuracy after attack: {}%'.format(accuracy * 100))
 
-features_a, features_b, features_c, features_d = get_features(mnist_classifier)
+features_a, features_b, features_c, features_d = get_features(mnist_classifier, x_test_adv)
 new_accuracy = detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv)
 
-print('Accuracy after defense on mnist on fgsm is: {}%'.format(new_accuracy * 100))
+if (new_accuracy != -1):
+    print('Accuracy after defense on mnist on fgsm is: {}%'.format(new_accuracy * 100))
 mnist_classifier.save('mnist_fgsm_state_dict', 'models')
 
 

@@ -8,6 +8,7 @@ import sys
 import time
 import math
 
+import numpy as np
 import torch.nn as nn
 import torch.nn.init as init
 
@@ -91,13 +92,40 @@ def progress_bar(current, total, msg=None):
         sys.stdout.write('\n')
     sys.stdout.flush()
 
-def get_features(mnist_classifier):
-    features_a, features_b, features_c, features_d = 0, 0, 0, 0
+def get_features(mnist_classifier, x_test_adv):
+    try:
+    	features_a = mnist_classifier.get_activations(x_test_adv, 0, 128)
+    	features_b = mnist_classifier.get_activations(x_test_adv, 1, 128)
+    	features_c = mnist_classifier.get_activations(x_test_adv, 0, 256)
+    	features_d = mnist_classifier.get_activations(x_test_adv, 1, 256)
+    except:
+        pass
     return features_a, features_b, features_c, features_d
 
 
 def detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv):
-    return 0.456
+    curr_accuracy = 0.0
+    try:
+        os.system('./art/metrics/dist/init/init')
+
+        d1.load_state_dict(torch.load('detectors/det1.pt'))
+        d2.load_state_dict(torch.load('detectors/det2.pt'))
+        d3.load_state_dict(torch.load('detectors/det3.pt'))
+        d4.load_state_dict(torch.load('detectors/det4.pt'))
+
+        preds1 = d1(features_a)
+        preds2 = d2(features_b)
+        preds3 = d3(features_c)
+        preds4 = d4(features_d)
+	
+        prediction = np.extract((round(preds1, 0) + round(preds2, 0) + round(preds3, 0) + round(preds4, 0)) >= 2.0, preds1.shape)
+
+        curr_accuracy = np.sum(np.argmax(prediction, axis=1) == 1.0) / len(x_test_adv)
+
+        return curr_accuracy
+    except:
+        pass
+    return -1 #error!!
 
 def format_time(seconds):
     days = int(seconds / 3600/24)
