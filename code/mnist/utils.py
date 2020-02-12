@@ -106,7 +106,7 @@ def get_features(mnist_classifier, x_test_adv):
 def detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv):
     curr_accuracy = 0.0
     try:
-        os.system('./art/metrics/dist/init/init')
+        os.system('art/metrics/dist/init/init')
 
         d1.load_state_dict(torch.load('detectors/det1.pt'))
         d2.load_state_dict(torch.load('detectors/det2.pt'))
