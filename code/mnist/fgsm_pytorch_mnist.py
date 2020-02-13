@@ -8,37 +8,15 @@ import torch.optim as optim
 import numpy as np
 
 sys.path.append('./../')
-k = sys.stdout
-sys.stdout = open('/results/fgsm_mnist.txt', 'w')
-
 
 from art.attacks.fast_gradient import FastGradientMethod
 from art.classifiers.pytorch import PyTorchClassifier
 from art.utils import load_mnist
 from utils import get_features, detect
-from architecture import d1, d2, d3, d4
+from architecture import d1, d2, d3, d4, Net
 
 cmd = 'art/dist/init_module/init_module'
 os.system(cmd)
-
-#Create the neural network architecture, return logits instead of activation in forward method (Eg. softmax).
-class Net(nn.Module):
-    def __init__(self):
-        super(Net, self).__init__()
-        self.conv1 = nn.Conv2d(1, 20, 5, 1)
-        self.conv2 = nn.Conv2d(20, 50, 5, 1)
-        self.fc1 = nn.Linear(4*4*50, 500)
-        self.fc2 = nn.Linear(500, 10)
-
-    def forward(self, x):
-        x = F.relu(self.conv1(x))
-        x = F.max_pool2d(x, 2, 2)
-        x = F.relu(self.conv2(x))
-        x = F.max_pool2d(x, 2, 2)
-        x = x.view(-1, 4*4*50)
-        x = F.relu(self.fc1(x))
-        x = self.fc2(x)
-        return x
 
 # Load the MNIST dataset
 (x_train, y_train), (x_test, y_test), min_, max_ = load_mnist()
@@ -88,7 +66,6 @@ if (new_accuracy != -1):
     print('Accuracy after defense on mnist on fgsm is: {}%'.format(new_accuracy * 100))
 mnist_classifier.save('mnist_fgsm_state_dict', 'models')
 
-sys.stdout = k
 print('exiting mnist-fast gradient sign method...')
 
 

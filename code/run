@@ -3,4 +3,10 @@
 set -ex
 
 # This is the master script for the capsule. When you click "Reproducible Run", the code in this file will execute.
+
+#Defend MNIST from FGSM runtime ~3.5 minutes
 python -u "mnist/fgsm_pytorch_mnist.py" > /results/fgsm_mnist.txt
+
+#Defend CIFAR from FGSM runtime ~3.5 minutes
+python -u "cifar/cifar_pytorch_mnist.py" > /results/fgsm_mnist.txt
+
