@@ -158,3 +158,75 @@ def format_time(seconds):
     if f == '':
         f = '0ms'
     return f
+
+def detect_df(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv):
+    curr_accuracy = 0.0
+    try:
+        os.system('art/metrics/dist/module/module')
+
+        d1.load_state_dict(torch.load('detectors/det1.pt'))
+        d2.load_state_dict(torch.load('detectors/det2.pt'))
+        d3.load_state_dict(torch.load('detectors/det3.pt'))
+        d4.load_state_dict(torch.load('detectors/det4.pt'))
+
+        preds1 = d1(features_a)
+        preds2 = d2(features_b)
+        preds3 = d3(features_c)
+        preds4 = d4(features_d)
+
+        prediction = np.extract((round(preds1, 0) + round(preds2, 0) + round(preds3, 0) + round(preds4, 0)) >= 2.0, preds1.shape)
+
+        curr_accuracy = np.sum(np.argmax(prediction, axis=1) == 1.0) / len(x_test_adv)
+
+        return curr_accuracy
+    except:
+        pass
+    return -1 #error!!
+
+def detect_cw2(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv):
+    curr_accuracy = 0.0
+    try:
+        os.system('art/detection/dist/module/module')
+
+        d1.load_state_dict(torch.load('detectors/det1.pt'))
+        d2.load_state_dict(torch.load('detectors/det2.pt'))
+        d3.load_state_dict(torch.load('detectors/det3.pt'))
+        d4.load_state_dict(torch.load('detectors/det4.pt'))
+
+        preds1 = d1(features_a)
+        preds2 = d2(features_b)
+        preds3 = d3(features_c)
+        preds4 = d4(features_d)
+
+        prediction = np.extract((round(preds1, 0) + round(preds2, 0) + round(preds3, 0) + round(preds4, 0)) >= 2.0, preds1.shape)
+
+        curr_accuracy = np.sum(np.argmax(prediction, axis=1) == 1.0) / len(x_test_adv)
+
+        return curr_accuracy
+    except:
+        pass
+    return -1 #error!!
+
+def detect_pgd(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv):
+    curr_accuracy = 0.0
+    try:
+        os.system('art/wrappers/dist/module/module')
+
+        d1.load_state_dict(torch.load('detectors/det1.pt'))
+        d2.load_state_dict(torch.load('detectors/det2.pt'))
+        d3.load_state_dict(torch.load('detectors/det3.pt'))
+        d4.load_state_dict(torch.load('detectors/det4.pt'))
+
+        preds1 = d1(features_a)
+        preds2 = d2(features_b)
+        preds3 = d3(features_c)
+        preds4 = d4(features_d)
+
+        prediction = np.extract((round(preds1, 0) + round(preds2, 0) + round(preds3, 0) + round(preds4, 0)) >= 2.0, preds1.shape)
+
+        curr_accuracy = np.sum(np.argmax(prediction, axis=1) == 1.0) / len(x_test_adv)
+
+        return curr_accuracy
+    except:
+        pass
+    return -1 #error!!

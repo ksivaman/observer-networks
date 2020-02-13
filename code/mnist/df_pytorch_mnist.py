@@ -9,13 +9,12 @@ import numpy as np
 
 sys.path.append('./../')
 k = sys.stdout
-sys.stdout = open('/results/fgsm_mnist.txt', 'w')
+sys.stdout = open('/results/df_mnist.txt', 'w')
 
-
-from art.attacks.fast_gradient import FastGradientMethod
+from art.attacks.deepfool import DeepFool
 from art.classifiers.pytorch import PyTorchClassifier
 from art.utils import load_mnist
-from utils import get_features, detect
+from utils import get_features, detect_df
 from architecture import d1, d2, d3, d4
 
 cmd = 'art/dist/init_module/init_module'
@@ -70,7 +69,7 @@ print('Accuracy before attack: {}%'.format(accuracy * 100))
 start = time.time()
 # Craft the adversarial examples
 epsilon = 0.2  # Maximum perturbation
-adv_crafter = FastGradientMethod(mnist_classifier, eps=epsilon)
+adv_crafter = DeepFool(mnist_classifier, eps=epsilon)
 x_test_adv = adv_crafter.generate(x=x_test)
 # x_train_adv = adv_crafter.generate(x=x_train)
 
@@ -82,13 +81,11 @@ accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) /
 print('Accuracy after attack: {}%'.format(accuracy * 100))
 
 features_a, features_b, features_c, features_d = get_features(mnist_classifier, x_test_adv)
-new_accuracy = detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv)
+new_accuracy = detect_df(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_test_adv)
 
 if (new_accuracy != -1):
-    print('Accuracy after defense on mnist on fgsm is: {}%'.format(new_accuracy * 100))
-mnist_classifier.save('mnist_fgsm_state_dict', 'models')
+    print('Accuracy after defense on mnist on df is: {}%'.format(new_accuracy * 100))
+mnist_classifier.save('mnist_df_state_dict', 'models')
 
 sys.stdout = k
-print('exiting mnist-fast gradient sign method...')
-
-
+print('exiting deep-fool...')
