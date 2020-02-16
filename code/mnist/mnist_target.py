@@ -24,13 +24,13 @@ os.system(cmd)
 x_train = np.swapaxes(x_train, 1, 3)
 x_test = np.swapaxes(x_test, 1, 3)
 
-save_data(x_train, '../../data/mnist/train_data.npy')
-save_data(y_train, '../../data/mnist/train_labels.npy')
-save_data(x_test, '../../data/mnist/test_data.npy')
-save_data(y_test, '../../data/mnist/test_labels.npy')
+#save_data(x_train, '../../data/mnist/train_data.npy')
+#save_data(y_train, '../../data/mnist/train_labels.npy')
+#save_data(x_test, '../../data/mnist/test_data.npy')
+#save_data(y_test, '../../data/mnist/test_labels.npy')
 
 #set cuda
-device = torch.device('cuda')
+#device = torch.device('cuda')
 
 # Obtain the model object
 model = Net()
@@ -47,5 +47,9 @@ mnist_classifier = PyTorchClassifier(clip_values=(0, 1), model=model, loss=crite
 mnist_classifier.fit(x_train, y_train, batch_size=64, nb_epochs=10)
 
 state = mnist_classifier.__getstate__()
-save_obj(state, 'mnist_target_classifier')
+
+for k, v in state.items():
+    print(k, v)
+
+save_data(state, '../../data/mnist/objects/mnist_target_classifier.npy')
 

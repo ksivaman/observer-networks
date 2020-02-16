@@ -7,11 +7,30 @@ import os
 import sys
 import time
 import math
+import gzip
+import pickle
 
 import numpy as np
 import torch.nn as nn
 import torch.nn.init as init
 
+def save_data(obj, path):
+    with open(path, 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+        #pickle.dump(obj, f)
+
+def load_data(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)
+
+def save_obj(obj, name):
+    with open('objects/'+ name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+        #pickle.dump(obj, f)
+
+def load_obj(name):
+    with open('objects/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''

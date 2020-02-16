@@ -7,12 +7,14 @@ import torch.backends.cudnn as cudnn
 from art.attacks.deepfool import DeepFool
 from art.classifiers.pytorch import PyTorchClassifier
 from art.utils import load_dataset
-from utils import get_features, detect_df
+from utils import get_features, detect_df, load_data
 from architecture import d1, d2, d3, d4
 
 import torchvision
 import torchvision.transforms as transforms
 import numpy as np
+import pickle
+import gzip
 
 import os
 import argparse
@@ -44,9 +46,14 @@ transform_test = transforms.Compose([
 ])
 
 # Load the CIFAR dataset
-(x_train, y_train), (x_test, y_test), min_, max_ = load_dataset(str('cifar10'))
-x_train = np.swapaxes(x_train, 1, 3)
-x_test = np.swapaxes(x_test, 1, 3)
+fp = gzip.open('../../data/cifar/training_data.npy','rb')
+x_train = pickle.load(fp)
+fp = gzip.open('../../data/cifar/training_labels.npy','rb')
+y_train = pickle.load(fp)
+fp = gzip.open('../../data/cifar/testing_data.npy','rb')
+x_test = pickle.load(fp)
+fp = gzip.open('../../data/cifar/testing_labels.npy','rb')
+y_test = pickle.load(fp)
 
 # Obtain the model object
 model = ResNet18()
@@ -59,7 +66,9 @@ cifar_classifier = PyTorchClassifier(clip_values=(0, 1), model=model, loss=crite
                                      input_shape=(3, 32, 32), nb_classes=10)
 
 # Train the classifier
-cifar_classifier.fit(x_train, y_train, batch_size=128, nb_epochs=10)
+#cifar_classifier.fit(x_train, y_train, batch_size=128, nb_epochs=10)
+state = load_data('../../data/cifar/cifar_target_classifier.npy')
+cifar_classifier.__setstate__(state)
 
 # Test the classifier
 predictions = cifar_classifier.predict(x_test)
@@ -67,9 +76,8 @@ accuracy = np.sum(np.argmax(predictions, axis=1) == np.argmax(y_test, axis=1)) /
 print('Accuracy before attack: {}%'.format(accuracy * 100))
 
 # Craft the adversarial examples
-epsilon = 0.2  # Maximum perturbation
-adv_crafter = DeepFool(cifar_classifier, eps=epsilon)
-x_test_adv = adv_crafter.generate(x=x_test)
+fp = gzip.open('../../data/cifar/df_adversarial.npy','rb')
+x_test_adv = pickle.load(fp)
 
 # Test the classifier on adversarial exmaples
 predictions = cifar_classifier.predict(x_test_adv)
