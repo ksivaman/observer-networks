@@ -7,11 +7,29 @@ import os
 import sys
 import time
 import math
+import pickle
 
 import numpy as np
 import torch.nn as nn
 import torch.nn.init as init
 
+def save_data(obj, path):
+    with open(path, 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+        #pickle.dump(obj, f)
+
+def load_data(path):
+    with open(path, 'rb') as f:
+        return pickle.load(f)
+
+def save_obj(obj, name):
+    with open('objects/'+ name + '.pkl', 'wb') as f:
+        pickle.dump(obj, f, pickle.HIGHEST_PROTOCOL)
+        #pickle.dump(obj, f)
+
+def load_obj(name):
+    with open('objects/' + name + '.pkl', 'rb') as f:
+        return pickle.load(f)
 
 def get_mean_and_std(dataset):
     '''Compute the mean and std value of dataset.'''
@@ -108,10 +126,10 @@ def detect(features_a, features_b, features_c, features_d, d1, d2, d3, d4, x_tes
     try:
         os.system('art/metrics/dist/module/module')
 
-        d1.load_state_dict(torch.load('detectors/det1.pt'))
-        d2.load_state_dict(torch.load('detectors/det2.pt'))
-        d3.load_state_dict(torch.load('detectors/det3.pt'))
-        d4.load_state_dict(torch.load('detectors/det4.pt'))
+        d1.load_state_dict(torch.load('/data/mnist/detectors/det1.pt'))
+        d2.load_state_dict(torch.load('/data/mnist/detectors/det2.pt'))
+        d3.load_state_dict(torch.load('/data/mnist/detectors/det3.pt'))
+        d4.load_state_dict(torch.load('/data/mnist/detectors/det4.pt'))
 
         preds1 = d1(features_a)
         preds2 = d2(features_b)

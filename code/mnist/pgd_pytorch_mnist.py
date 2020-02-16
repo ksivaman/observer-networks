@@ -2,28 +2,33 @@ import time
 import sys
 import os
 import torch
+import gzip
 import torch.nn as nn
 import torch.nn.functional as F
 import torch.optim as optim
 import numpy as np
+import pickle
 
 sys.path.append('./../')
 
 from art.attacks.projected_gradient_descent import ProjectedGradientDescent
 from art.classifiers.pytorch import PyTorchClassifier
 from art.utils import load_mnist
-from utils import get_features, detect_pgd
+from utils import get_features, detect_pgd, load_obj, load_data
 from architecture import d1, d2, d3, d4, Net
 
 cmd = 'art/dist/init_module/init_module'
 os.system(cmd)
 
 # Load the MNIST dataset
-(x_train, y_train), (x_test, y_test), min_, max_ = load_mnist()
-x_train = np.swapaxes(x_train, 1, 3)
-x_test = np.swapaxes(x_test, 1, 3)
-
-#set cuda
+fp = gzip.open('../../data/mnist/training_data.npy','rb')
+x_train = pickle.load(fp)
+fp = gzip.open('../../data/mnist/training_labels.npy','rb')
+y_train = pickle.load(fp)
+fp = gzip.open('../../data/mnist/testing_data.npy','rb')
+x_test = pickle.load(fp)
+fp = gzip.open('../../data/mnist/testing_labels.npy','rb')
+y_test = pickle.load(fp)#set cuda
 device = torch.device('cuda')
 
 # Obtain the model object
@@ -38,7 +43,9 @@ mnist_classifier = PyTorchClassifier(clip_values=(0, 1), model=model, loss=crite
                                      input_shape=(1, 28, 28), nb_classes=10)
 
 # Train the classifier
-mnist_classifier.fit(x_train, y_train, batch_size=64, nb_epochs=10)
+#mnist_classifier.fit(x_train, y_train, batch_size=64, nb_epochs=10)
+state = load_data('../../data/mnist/objects/mnist_target_classifier.pkl')
+mnist_classifier.__setstate__(state)
 
 # Test the classifier
 predictions = mnist_classifier.predict(x_test)
@@ -47,12 +54,7 @@ print('Accuracy before attack: {}%'.format(accuracy * 100))
 
 start = time.time()
 # Craft the adversarial examples
-epsilon = 0.2  # Maximum perturbation
-adv_crafter = ProjectedGradientDescent(mnist_classifier)
-x_test_adv = adv_crafter.generate(x=x_test)
-# x_train_adv = adv_crafter.generate(x=x_train)
-
-end = time.time()
+x_test_adv = load_data('../../data/mnist/pgd_adversarial.npy')
 
 # Test the classifier on adversarial exmaples
 predictions = mnist_classifier.predict(x_test_adv)
